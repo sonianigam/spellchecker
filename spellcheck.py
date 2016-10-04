@@ -1,8 +1,8 @@
-import csv
 import matplotlib.pyplot as plt
 import numpy
 import sys
 import time
+import re
 
 #find closest word to input string1 using input dictionary
 def find_closest_word(string1, dictionary):
@@ -17,7 +17,6 @@ def find_closest_word(string1, dictionary):
         if distance < min_distance:
             min_distance = distance
             closest_word = string2
-    
     return closest_word
     
 
@@ -30,7 +29,7 @@ def levenshtein_distance(string1, string2, deletion_cost, insertion_cost, substi
             d[i, 0] = i*deletion_cost
     
     for j in range(len(string2)):
-            d[0, j] = i*insertion_cost
+            d[0, j] = j*insertion_cost
     
     #iterate through each letter in string1 and string2
     for j in range(1, len(string2)):
@@ -66,7 +65,6 @@ def qwerty_levenshtein_distance(string1, string2, deletion_cost, insertion_cost)
             #if they are not the same, save which method is least costly- use sub multidimensional array to get sub cost
             else:
                 d[i, j] = min(d[i-1, j] + deletion_cost, d[i, j-1] + insertion_cost, d[i-1, j-1] + substitution_cost(string1[i], string2[j]))
-                
             
     return d[len(string1)-1, len(string2)-1]
     
@@ -80,18 +78,15 @@ def measure_error(typos, truewords, dictionarywords):
     #iterate through typo words and find replacement word using lev algorithm
     for i in range(total):
         replacement = find_closest_word(typos[i], dictionarywords)
-        
         #if the algo was correct, increment counter
         if replacement == truewords[i]:
-            print typos[i]
-            print replacement
-            print truewords[i]
             counter+= 1
 
     #find success rate 
     rate = counter/total
     #print time it took to run this computation
     print "it took this long to measure error: " + str((time.time() - start))
+    print rate
     return rate
 
 def main():
@@ -103,24 +98,14 @@ def main():
     if len(sys.argv) > 3:
         indicator = sys.argv[3]
     
-    #initiate output file 
+    #initialize output file 
     corrected_file = open('corrected.txt', 'w')
     
-    #initiate arrays for typo words, true words, and dictionary words
-    typo_words = []
-    true_words = []
+    #initialize array for dictionary words
     dict_words = []
-
-    
     body = typo_file.readlines()
     dict_body = dict_file.readlines()
-
-    #populate true words and typo words from inputted file
-    for line in body:
-        pair = line.split()  
-        typo_words.append(pair[0]) 
-        true_words.append(pair[1])
-
+    
     #populate dictionary words from inputted file
     for line in dict_body:
         for w in line.split():
@@ -129,15 +114,35 @@ def main():
     #measure error if indicated in command line 
     if len(sys.argv) > 3:
         if indicator == "1":
-            measure_error(typo_words, true_words, dict_words)         
+            #initialize arrays for typo words, true words
+            typo_words = []
+            true_words = []
+            
+            #populate true words and typo words from inputted file
+            for line in body:
+                pair = line.split()  
+                typo_words.append(pair[0]) 
+                true_words.append(pair[1])
+                 
+            measure_error(typo_words, true_words, dict_words)   
+                  
     #if nothing is indicated, run standard program that outputs a corrected file
     else:
-        for w in typo_words:
-            print "hi"
-            replacement = find_closest_word(w, dict_words)
-            replacement = str(replacement)
-            corrected_file.write(replacement+'\n')
-            corrected_file.flush()
+        for x in body:
+            #split each line into words using all but alphanum as delimiters
+                body_list = re.split('(\W)', x)
+                for word in body_list:
+                    if word.isalnum() == False:
+                        #write symbol to file
+                        corrected_file.write(word)
+                        corrected_file.flush()
+                    else:
+                        #find closest word 
+                        replacement = find_closest_word(word, dict_words)
+                        replacement = str(replacement)
+                        #write corrected word to file
+                        corrected_file.write(replacement)
+                        corrected_file.flush()
 
     
     corrected_file.close()
