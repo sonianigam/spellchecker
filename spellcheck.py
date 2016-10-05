@@ -221,6 +221,7 @@ def main():
         
         #run experiment using standard measure error
         if indicator == "3":
+            
             typo_words = []
             true_words = []
             parameters = [1, 2, 3, 4]
@@ -244,17 +245,26 @@ def main():
                 rate = experiment_measure_error(typo_words, true_words, dict_words, param1, param2, param3) 
                 x_values.append(rate)
                 y_values.append(counter)
-                counter += 1
                 
+                print param
+                print x_values
+                print y_values
+                print counter
+                     
+                counter += 1
+
                 if rate < best_error:
                     best_error = rate
                     best_param = param
                 
-                print 'attempting to plot'
                 
-                plt.plot(x_values, y_values)
-                plt.show()
-            
+            plt.plot(y_values, x_values, "ro")
+            plt.ylabel('error rate')
+            plt.xlabel('trial number')
+            plt.axis([0, 35, 0, 1])
+            print "saving plot image"
+            plt.savefig('plot.png')
+                
             print "best param is: " + str(best_param)
             print "with the error: " + str(best_error)
                     
