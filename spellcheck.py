@@ -1,17 +1,18 @@
 import matplotlib.pyplot as plt
+import itertools
 import numpy
 import sys
 import time
 import re
 
 #find closest word to input string1 using input dictionary
-def find_closest_word(string1, dictionary):
+def find_closest_word(string1, dictionary, param1=1, param2=1, param3=1):
     closest_word = ""
     min_distance = float("inf")
     
     #iterate through words in dictionary and calculate distance w/ string1
     for string2 in dictionary:
-        distance = levenshtein_distance(string1, string2, 1, 1, 1)
+        distance = levenshtein_distance(string1, string2, param1, param2, param3)
         
         #if the distance is smaller, save as closest word
         if distance < min_distance:
@@ -34,7 +35,7 @@ def qwerty_find_closest_word(string1, dictionary):
             closest_word = string2
     print closest_word
     return closest_word
-    
+
 
 #calculate levenshtein distance between string1 and string2 using inputted deletion, insertion, and substitution costs
 def levenshtein_distance(string1, string2, deletion_cost, insertion_cost, substitution_cost):
@@ -56,8 +57,6 @@ def levenshtein_distance(string1, string2, deletion_cost, insertion_cost, substi
             #if they are not the same, use method that is least costly
             else:
                 d[i, j] = min(d[i-1, j] + deletion_cost, d[i, j-1] + insertion_cost, d[i-1, j-1] + substitution_cost)
-                
-            
     return d[len(string1)-1, len(string2)-1]
     
     
@@ -147,6 +146,26 @@ def qwerty_measure_error(typos, truewords, dictionarywords):
     print "it took this long to measure error: " + str((time.time() - start))
     print "error rate is: " + str(rate)
     return rate
+    
+#measure the error of algorithm by calculating success rate
+def experiment_measure_error(typos, truewords, dictionarywords, param1, param2, param3):
+    counter = 0.0
+    total = len(typos)
+    start = time.time()
+    
+    #iterate through typo words and find replacement word using lev algorithm
+    for i in range(total):
+        replacement = find_closest_word(typos[i], dictionarywords, param1, param2, param3)
+        #if the algo was correct, increment counter
+        if replacement != truewords[i]:
+            counter+= 1
+
+    #find success rate 
+    rate = counter/total
+    #print time it took to run this computation
+    print "it took this long to measure error: " + str((time.time() - start))
+    print "error rate is: " + str(rate)
+    return rate
 
 def main():
     #read two files from command line
@@ -172,6 +191,7 @@ def main():
     
     #measure error if indicated in command line 
     if len(sys.argv) > 3:
+        #run standard measure error
         if indicator == "1":
             #initialize arrays for typo words, true words
             typo_words = []
@@ -184,7 +204,8 @@ def main():
                 true_words.append(pair[1])
                  
             measure_error(typo_words, true_words, dict_words) 
-            
+        
+        #run qwerty measure error
         if indicator == "2":
             #initialize arrays for typo words, true words
             typo_words = []
@@ -196,8 +217,49 @@ def main():
                 typo_words.append(pair[0]) 
                 true_words.append(pair[1])
                  
-            qwerty_measure_error(typo_words, true_words, dict_words)  
-                  
+            qwerty_measure_error(typo_words, true_words, dict_words) 
+        
+        #run experiment using standard measure error
+        if indicator == "3":
+            typo_words = []
+            true_words = []
+            parameters = [1, 2, 3, 4]
+            x_values = []
+            y_values = []
+            counter = 1
+            best_error = float("inf")
+            best_param = []
+            
+            combos = itertools.product(parameters, repeat=3)
+            
+            for param in combos:
+                for x in range(35):
+                    pair = body[x].split()  
+                    typo_words.append(pair[0]) 
+                    true_words.append(pair[1])
+                    param1 = param[0]
+                    param2 = param[1]
+                    param3 = param[2]
+            
+                rate = experiment_measure_error(typo_words, true_words, dict_words, param1, param2, param3) 
+                x_values.append(rate)
+                y_values.append(counter)
+                counter += 1
+                
+                if rate < best_error:
+                    best_error = rate
+                    best_param = param
+                
+                print 'attempting to plot'
+                
+                plt.plot(x_values, y_values)
+                plt.show()
+            
+            print "best param is: " + str(best_param)
+            print "with the error: " + str(best_error)
+                    
+
+                 
     #if nothing is indicated, run standard program that outputs a corrected file
     else:
         for x in body:
