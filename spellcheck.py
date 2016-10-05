@@ -261,7 +261,7 @@ def main():
             plt.plot(y_values, x_values, "ro")
             plt.ylabel('error rate')
             plt.xlabel('trial number')
-            plt.axis([0, 35, 0, 1])
+            plt.axis([0, 64, 0, 1])
             print "saving plot image"
             plt.savefig('plot.png')
                 
