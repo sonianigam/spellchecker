@@ -125,7 +125,7 @@ def measure_error(typos, truewords, dictionarywords):
     rate = counter/total
     #print time it took to run this computation
     print "it took this long to measure error: " + str((time.time() - start))
-    print "error rate is: " str(rate)
+    print "error rate is: " + str(rate)
     return rate
     
 #measure the error of algorithm by calculating success rate using qwerty lev algo
