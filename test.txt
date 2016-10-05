@@ -1,9 +1,10 @@
-abandonned	abandoned
-aberation	aberration
-abilties	abilities
-abilty	ability
-abondon	abandon
-abbout	about
-abotu	about
-abouta	about a
-aboutit	about it
+abondoning	abandoning
+abondons	abandons
+aborigene	aborigine
+accesories	accessories
+accidant	accident
+abortificant	abortifacient
+abreviate	abbreviate
+abreviated	abbreviated
+abreviation	abbreviation
+abritrary	arbitrary

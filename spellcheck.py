@@ -19,6 +19,22 @@ def find_closest_word(string1, dictionary):
             closest_word = string2
     return closest_word
     
+#find closest word to input string1 and input dictionary, uses qwerty lev algo
+def qwerty_find_closest_word(string1, dictionary):
+    closest_word = ""
+    min_distance = float("inf")
+    
+    #iterate through words in dictionary and calculate distance w/ string1
+    for string2 in dictionary:
+        distance = qwerty_levenshtein_distance(string1, string2, 1, 1)
+        
+        #if the distance is smaller, save as closest word
+        if distance < min_distance:
+            min_distance = distance
+            closest_word = string2
+    print closest_word
+    return closest_word
+    
 
 #calculate levenshtein distance between string1 and string2 using inputted deletion, insertion, and substitution costs
 def levenshtein_distance(string1, string2, deletion_cost, insertion_cost, substitution_cost):
@@ -45,11 +61,10 @@ def levenshtein_distance(string1, string2, deletion_cost, insertion_cost, substi
     return d[len(string1)-1, len(string2)-1]
     
     
+#calculates lev distance where sub value is found using manhattan distance func
 def qwerty_levenshtein_distance(string1, string2, deletion_cost, insertion_cost):
     d = dict()
-    
-    #HARDCODE MANHATTAN DISTANCE???
-    
+
     for i in range(len(string1)):
             d[i, 0] = i*deletion_cost
     
@@ -59,14 +74,38 @@ def qwerty_levenshtein_distance(string1, string2, deletion_cost, insertion_cost)
     #iterate through each letter in string1 and string2
     for j in range(1, len(string2)):
         for i in range(1, len(string1)):
+
             #if they are the same character, do not add any more cost and just save previous cost
             if string1[i] == string2[j]:
                 d[i, j] = d[i-1, j-1]
             #if they are not the same, save which method is least costly- use sub multidimensional array to get sub cost
             else:
-                d[i, j] = min(d[i-1, j] + deletion_cost, d[i, j-1] + insertion_cost, d[i-1, j-1] + substitution_cost(string1[i], string2[j]))
-            
+                d[i, j] = min(d[i-1, j] + deletion_cost, d[i, j-1] + insertion_cost, d[i-1, j-1] + manhattan_distance(string1[i], string2[j]))
     return d[len(string1)-1, len(string2)-1]
+    
+    
+#calculate manhattan distance between two coordinates in (x, y) form
+def manhattan_distance(c1, c2):
+    #maps keyboard to coordinate system
+    coordinates = {
+        "a": (1, 2), "b": (5, 1), "c": (3, 1), "d": (3, 2), "e": (3, 3), "f": (4, 2), "g": (5, 2), "h": (6, 2), "i": (8, 3), "j": (7, 2), "k": (8, 2), "l": (9, 2), "m": (7, 1), 
+        "n": (6, 1), "o": (9, 3), "p": (10, 3), "q": (1, 3), "r": (4, 3), "s": (2, 3), "t": (5, 3), "u": (7, 3), "v": (4, 1), "w": (2, 3), "x": (2, 1), "y": (6, 3),
+        "z": (1, 1), "1": (1, 4), "2": (2, 4), "3": (3, 4), "4": (4, 4), "5": (5, 4), "6": (6, 4), "7": (7, 4), "8": (8, 4),  "9": (9, 4), "0": (10, 4)
+    }
+    
+    #returns 0 if no alphanumeric characters
+    if (c1.isalnum() and c2.isalnum()) == False:
+        return 0
+    #calculates difference between two coordinate points
+    else:
+        coordinate_one = coordinates[c1.lower()]
+        coordinate_two = coordinates[c2.lower()]
+        
+        x_dist = abs(coordinate_one[0] - coordinate_two[0])
+        y_dist = abs(coordinate_one[1] - coordinate_two[1])
+        
+        distance = x_dist + y_dist
+        return distance
     
             
 #measure the error of algorithm by calculating success rate
@@ -79,14 +118,34 @@ def measure_error(typos, truewords, dictionarywords):
     for i in range(total):
         replacement = find_closest_word(typos[i], dictionarywords)
         #if the algo was correct, increment counter
-        if replacement == truewords[i]:
+        if replacement != truewords[i]:
             counter+= 1
 
     #find success rate 
     rate = counter/total
     #print time it took to run this computation
     print "it took this long to measure error: " + str((time.time() - start))
-    print rate
+    print "error rate is: " str(rate)
+    return rate
+    
+#measure the error of algorithm by calculating success rate using qwerty lev algo
+def qwerty_measure_error(typos, truewords, dictionarywords):
+    counter = 0.0
+    total = len(typos)
+    start = time.time()
+    
+    #iterate through typo words and find replacement word using lev algorithm
+    for i in range(total):
+        replacement = qwerty_find_closest_word(typos[i], dictionarywords)
+        #if the algo was correct, increment counter
+        if replacement != truewords[i]:
+            counter+= 1
+
+    #find success rate 
+    rate = counter/total
+    #print time it took to run this computation
+    print "it took this long to measure error: " + str((time.time() - start))
+    print "error rate is: " + str(rate)
     return rate
 
 def main():
@@ -124,7 +183,20 @@ def main():
                 typo_words.append(pair[0]) 
                 true_words.append(pair[1])
                  
-            measure_error(typo_words, true_words, dict_words)   
+            measure_error(typo_words, true_words, dict_words) 
+            
+        if indicator == "2":
+            #initialize arrays for typo words, true words
+            typo_words = []
+            true_words = []
+            
+            #populate true words and typo words from inputted file
+            for line in body:
+                pair = line.split()  
+                typo_words.append(pair[0]) 
+                true_words.append(pair[1])
+                 
+            qwerty_measure_error(typo_words, true_words, dict_words)  
                   
     #if nothing is indicated, run standard program that outputs a corrected file
     else:

@@ -1,13 +1,10 @@
-A	A
-	A
-aback<A	aback
-aback	abacus
+poisoning	abandon
 abandon	abandon
-band>bed	abandoned
-ahaadornment	abandonment
-abashed	abashed
-abate	abate
-abbey	abbey
-air.,	abbr..
+aborigine	aborigine
+access	accessory
+accident	accident
+certificate	about-face
 abbreviate	abbreviate
-abbreviation	
+abbreviate	abbreviate
+abbreviation	abbreviation
+arbitrary	arbitrary
