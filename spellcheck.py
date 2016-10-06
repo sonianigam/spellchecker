@@ -247,21 +247,27 @@ def main():
             x_values = []
             y_values = []
             counter = 1
+            
+            #maintain param with the lowest error
             best_error = float("inf")
             best_param = []
             
+            #aggregate sample set of data
             for x in range(35):
                 pair = body[x].split()  
                 typo_words.append(pair[0]) 
                 true_words.append(pair[1])
             
+            #create list of all parameter combos
             combos = itertools.product(parameters, repeat=3)
             
+            #iterate through each paramter type
             for param in combos:
                 param1 = param[0]
                 param2 = param[1]
                 param3 = param[2]
-            
+                
+                #get rate, aggregate trial number and error rate  as x, y values
                 rate = experiment_measure_error(typo_words, true_words, dict_words, param1, param2, param3) 
                 x_values.append(rate)
                 y_values.append(counter)
@@ -270,14 +276,16 @@ def main():
                 print x_values
                 print y_values
                 print counter
-                     
+                
+                #increment trial 
                 counter += 1
-
+                
+                #save param with lowest error
                 if rate < best_error:
                     best_error = rate
                     best_param = param
                 
-                
+            #plot graph with trial number and error rates   
             plt.plot(y_values, x_values, "ro")
             plt.ylabel('error rate')
             plt.xlabel('trial number')
@@ -299,18 +307,21 @@ def main():
             best_error = float("inf")
             best_param = []
             
+            #aggregate sample data
             for x in range(35):
                 pair = body[x].split()  
                 typo_words.append(pair[0]) 
                 true_words.append(pair[1])
             
+            #get all combinations of the paramters
             combos = itertools.product(parameters, repeat=2)
             
+            #iterate through the parameters
             for param in combos:
-                    
                 param1 = param[0]
                 param2 = param[1]
-            
+                
+                #get rate, aggregate trial number and error rate  as x, y values
                 rate = qwerty_experiment_measure_error(typo_words, true_words, dict_words, param1, param2) 
                 x_values.append(rate)
                 y_values.append(counter)
@@ -319,14 +330,16 @@ def main():
                 print x_values
                 print y_values
                 print counter
-                     
+                
+                #increment trial number
                 counter += 1
-
+                
+                #save param with lowest error rate
                 if rate < best_error:
                     best_error = rate
                     best_param = param
                 
-                
+            #graph trial number against error rates
             plt.plot(y_values, x_values, "ro")
             plt.ylabel('error rate')
             plt.xlabel('trial number')
@@ -355,9 +368,10 @@ def main():
                         replacement = str(replacement)
                         #write corrected word to file
                         corrected_file.write(replacement)
+                        #refresh file
                         corrected_file.flush()
 
-    
+    #close all files
     corrected_file.close()
     dict_file.close()
     typo_file.close()
