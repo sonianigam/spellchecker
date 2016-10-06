@@ -239,7 +239,7 @@ def main():
                  
             qwerty_measure_error(typo_words, true_words, dict_words) 
         
-        #run experiment using standard measure error
+        #run 1st experiment using standard measure error
         if indicator == "3":
             typo_words = []
             true_words = []
@@ -295,7 +295,8 @@ def main():
                 
             print "best param is: " + str(best_param)
             print "with the error: " + str(best_error)
-        #run experiment using qwerty measure error
+            
+        #run 2nd experiment using qwerty measure error
         if indicator == "4":
             
             typo_words = []
@@ -350,7 +351,6 @@ def main():
             print "best param is: " + str(best_param)
             print "with the error: " + str(best_error)
                     
-
                  
     #if nothing is indicated, run standard program that outputs a corrected file
     else:
