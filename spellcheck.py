@@ -343,9 +343,9 @@ def main():
             plt.plot(y_values, x_values, "ro")
             plt.ylabel('error rate')
             plt.xlabel('trial number')
-            plt.axis([0, 64, 0, 1])
+            plt.axis([0, 16, 0, 1])
             print "saving plot image"
-            plt.savefig('plot.png')
+            plt.savefig('plot2.png')
                 
             print "best param is: " + str(best_param)
             print "with the error: " + str(best_error)
