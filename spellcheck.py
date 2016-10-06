@@ -237,7 +237,7 @@ def main():
                 typo_words.append(pair[0]) 
                 true_words.append(pair[1])
                  
-            qwerty_measure_error(typo_words, true_words, dict_words) 
+            qwerty_measure_error(typo_words, true_words, dict_words, 1, 1) 
         
         #run 1st experiment using standard measure error
         if indicator == "3":
