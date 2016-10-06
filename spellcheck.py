@@ -33,6 +33,7 @@ def qwerty_find_closest_word(string1, dictionary, param1=1, param2=1):
         if distance < min_distance:
             min_distance = distance
             closest_word = string2
+            
     return closest_word
 
 
