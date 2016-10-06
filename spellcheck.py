@@ -21,19 +21,18 @@ def find_closest_word(string1, dictionary, param1=1, param2=1, param3=1):
     return closest_word
     
 #find closest word to input string1 and input dictionary, uses qwerty lev algo
-def qwerty_find_closest_word(string1, dictionary):
+def qwerty_find_closest_word(string1, dictionary, param1=1, param2=1):
     closest_word = ""
     min_distance = float("inf")
     
     #iterate through words in dictionary and calculate distance w/ string1
     for string2 in dictionary:
-        distance = qwerty_levenshtein_distance(string1, string2, 1, 1)
+        distance = qwerty_levenshtein_distance(string1, string2, param1, param2)
         
         #if the distance is smaller, save as closest word
         if distance < min_distance:
             min_distance = distance
             closest_word = string2
-    print closest_word
     return closest_word
 
 
@@ -52,7 +51,7 @@ def levenshtein_distance(string1, string2, deletion_cost, insertion_cost, substi
     for j in range(1, len(string2)):
         for i in range(1, len(string1)):
             #if they are the same character, do not add any more cost and just save previous cost
-            if string1[i] == string2[j]:
+            if string1[i].lower() == string2[j].lower():
                 d[i, j] = d[i-1, j-1]
             #if they are not the same, use method that is least costly
             else:
@@ -75,7 +74,7 @@ def qwerty_levenshtein_distance(string1, string2, deletion_cost, insertion_cost)
         for i in range(1, len(string1)):
 
             #if they are the same character, do not add any more cost and just save previous cost
-            if string1[i] == string2[j]:
+            if string1[i].lower() == string2[j].lower():
                 d[i, j] = d[i-1, j-1]
             #if they are not the same, save which method is least costly- use sub multidimensional array to get sub cost
             else:
@@ -115,7 +114,7 @@ def measure_error(typos, truewords, dictionarywords):
     
     #iterate through typo words and find replacement word using lev algorithm
     for i in range(total):
-        replacement = find_closest_word(typos[i], dictionarywords)
+        replacement = find_closest_word(typos[i].lower(), dictionarywords)
         #if the algo was correct, increment counter
         if replacement != truewords[i]:
             counter+= 1
@@ -128,14 +127,14 @@ def measure_error(typos, truewords, dictionarywords):
     return rate
     
 #measure the error of algorithm by calculating success rate using qwerty lev algo
-def qwerty_measure_error(typos, truewords, dictionarywords):
+def qwerty_measure_error(typos, truewords, dictionarywords, param1=1, param2=1):
     counter = 0.0
     total = len(typos)
     start = time.time()
     
     #iterate through typo words and find replacement word using lev algorithm
     for i in range(total):
-        replacement = qwerty_find_closest_word(typos[i], dictionarywords)
+        replacement = qwerty_find_closest_word(typos[i].lower(), dictionarywords, param1, param2)
         #if the algo was correct, increment counter
         if replacement != truewords[i]:
             counter+= 1
@@ -155,7 +154,27 @@ def experiment_measure_error(typos, truewords, dictionarywords, param1, param2, 
     
     #iterate through typo words and find replacement word using lev algorithm
     for i in range(total):
-        replacement = find_closest_word(typos[i], dictionarywords, param1, param2, param3)
+        replacement = find_closest_word(typos[i].lower(), dictionarywords, param1, param2, param3)
+        #if the algo was correct, increment counter
+        if replacement != truewords[i]:
+            counter+= 1
+
+    #find success rate 
+    rate = counter/total
+    #print time it took to run this computation
+    print "it took this long to measure error: " + str((time.time() - start))
+    print "error rate is: " + str(rate)
+    return rate
+
+#measure the error of algorithm by calculating success rate
+def qwerty_experiment_measure_error(typos, truewords, dictionarywords, param1, param2):
+    counter = 0.0
+    total = len(typos)
+    start = time.time()
+    
+    #iterate through typo words and find replacement word using lev algorithm
+    for i in range(total):
+        replacement = qwerty_find_closest_word(typos[i].lower(), dictionarywords, param1, param2)
         #if the algo was correct, increment counter
         if replacement != truewords[i]:
             counter+= 1
@@ -221,6 +240,54 @@ def main():
         
         #run experiment using standard measure error
         if indicator == "3":
+            typo_words = []
+            true_words = []
+            parameters = [1, 2, 3, 4]
+            x_values = []
+            y_values = []
+            counter = 1
+            best_error = float("inf")
+            best_param = []
+            
+            for x in range(35):
+                pair = body[x].split()  
+                typo_words.append(pair[0]) 
+                true_words.append(pair[1])
+            
+            combos = itertools.product(parameters, repeat=3)
+            
+            for param in combos:
+                param1 = param[0]
+                param2 = param[1]
+                param3 = param[2]
+            
+                rate = experiment_measure_error(typo_words, true_words, dict_words, param1, param2, param3) 
+                x_values.append(rate)
+                y_values.append(counter)
+                
+                print param
+                print x_values
+                print y_values
+                print counter
+                     
+                counter += 1
+
+                if rate < best_error:
+                    best_error = rate
+                    best_param = param
+                
+                
+            plt.plot(y_values, x_values, "ro")
+            plt.ylabel('error rate')
+            plt.xlabel('trial number')
+            plt.axis([0, 64, 0, 1])
+            print "saving plot image"
+            plt.savefig('plot.png')
+                
+            print "best param is: " + str(best_param)
+            print "with the error: " + str(best_error)
+        #run experiment using qwerty measure error
+        if indicator == "4":
             
             typo_words = []
             true_words = []
@@ -231,18 +298,19 @@ def main():
             best_error = float("inf")
             best_param = []
             
-            combos = itertools.product(parameters, repeat=3)
+            for x in range(35):
+                pair = body[x].split()  
+                typo_words.append(pair[0]) 
+                true_words.append(pair[1])
+            
+            combos = itertools.product(parameters, repeat=2)
             
             for param in combos:
-                for x in range(35):
-                    pair = body[x].split()  
-                    typo_words.append(pair[0]) 
-                    true_words.append(pair[1])
-                    param1 = param[0]
-                    param2 = param[1]
-                    param3 = param[2]
+                    
+                param1 = param[0]
+                param2 = param[1]
             
-                rate = experiment_measure_error(typo_words, true_words, dict_words, param1, param2, param3) 
+                rate = qwerty_experiment_measure_error(typo_words, true_words, dict_words, param1, param2) 
                 x_values.append(rate)
                 y_values.append(counter)
                 
