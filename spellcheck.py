@@ -68,7 +68,7 @@ def qwerty_levenshtein_distance(string1, string2, deletion_cost, insertion_cost)
             d[i, 0] = i*deletion_cost
     
     for j in range(len(string2)):
-            d[0, j] = i*insertion_cost
+            d[0, j] = j*insertion_cost
     
     #iterate through each letter in string1 and string2
     for j in range(1, len(string2)):
@@ -93,8 +93,11 @@ def manhattan_distance(c1, c2):
     }
     
     #returns 0 if no alphanumeric characters
-    if (c1.isalnum() and c2.isalnum()) == False:
+    if c1.isalnum() == False:
         return 0
+    elif c2.isalnum() == False:
+        return 0
+        
     #calculates difference between two coordinate points
     else:
         coordinate_one = coordinates[c1.lower()]
@@ -137,7 +140,7 @@ def qwerty_measure_error(typos, truewords, dictionarywords, param1=1, param2=1):
     for i in range(total):
         replacement = qwerty_find_closest_word(typos[i].lower(), dictionarywords, param1, param2)
         #if the algo was correct, increment counter
-        if replacement != truewords[i]:
+        if replacement.lower() != truewords[i].lower():
             counter+= 1
 
     #find success rate 
